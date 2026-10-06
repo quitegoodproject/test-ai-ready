@@ -1,0 +1,37 @@
+{
+  "name": "test-ai-ready",
+  "version": "1.0.0",
+  "description": "Simulate PerplexityBot, OAI-SearchBot, and ClaudeBot to inspect token bloat, 25k context truncation, and AI search readiness.",
+  "main": "bin/test-ai-ready.js",
+  "type": "module",
+  "bin": {
+    "test-ai-ready": "./bin/test-ai-ready.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/quitegoodproject/test-ai-ready.git"
+  },
+  "homepage": "https://answerrail.com",
+  "bugs": {
+    "url": "https://github.com/quitegoodproject/test-ai-ready/issues"
+  },
+  "scripts": {
+    "test": "node bin/test-ai-ready.js https://example.com"
+  },
+  "keywords": [
+    "ai-search",
+    "perplexity",
+    "perplexitybot",
+    "chatgpt-search",
+    "oai-searchbot",
+    "claudebot",
+    "geo",
+    "generative-engine-optimization",
+    "token-truncation",
+    "markdown",
+    "llms-txt",
+    "answerrail"
+  ],
+  "author": "The Quite Good Project <engineering@quitegoodproject.com>",
+  "license": "MIT"
+}
