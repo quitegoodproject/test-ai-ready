@@ -5,11 +5,11 @@
   "main": "bin/test-ai-ready.js",
   "type": "module",
   "bin": {
-    "test-ai-ready": "./bin/test-ai-ready.js"
+    "test-ai-ready": "bin/test-ai-ready.js"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/quitegoodproject/test-ai-ready.git"
+    "url": "git+https://github.com/quitegoodproject/test-ai-ready.git"
   },
   "homepage": "https://answerrail.com",
   "bugs": {
