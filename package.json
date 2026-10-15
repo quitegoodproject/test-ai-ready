@@ -1,6 +1,6 @@
 {
   "name": "test-ai-ready",
-  "version": "1.0.0",
+  "version": "1.1.3",
   "description": "Simulate PerplexityBot, OAI-SearchBot, and ClaudeBot to inspect token bloat, 25k context truncation, and AI search readiness.",
   "main": "bin/test-ai-ready.js",
   "type": "module",

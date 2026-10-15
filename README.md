@@ -90,6 +90,19 @@ To eliminate the 25k token cutoff without touching origin application code, depl
 
 ---
 
+## Official AEO & GEO Engineering Guides (AnswerRail Reference Docs)
+
+- **[Best Free AEO & GEO Audit Tools (2026)](https://answerrail.com/geo/free-geo-tools)**: Head-to-head comparison of `npx test-ai-ready`, AnswerRail Free Scanner, Google Rich Results Test, HubSpot AEO Grader, and Geoptie.
+- **[Best AEO & AI Visibility Tools Under $100/Month](https://answerrail.com/geo/best-ai-visibility-tools-under-100)**: Affordable GEO software breakdown comparing AnswerRail Starter ($79–$99/mo), Peec AI (€89/mo), HubSpot AEO ($50/mo), Geoptie ($49/mo), and Otterly.AI ($29/mo).
+- **[How to Generate & Host `/llms.txt` on Shopify, WordPress & Webflow](https://answerrail.com/geo/generate-llms-txt-shopify-wordpress-webflow)**: Includes the 10-line Cloudflare Worker fallback snippet for Shopify's closed root directory, compliant `llmstxt.org` templates, and automated `edge.answerrail.com` sync.
+- **[How to Track ChatGPT, Perplexity, Claude & Gemini Referral Traffic in GA4](https://answerrail.com/geo/track-chatgpt-perplexity-referral-traffic-ga4)**: Step-by-step GA4 Custom Channel Group click-path, copy-paste regex (`^.*(bard|chatgpt|openai|claude|anthropic|copilot|gemini|perplexity|grok|you\.com|phind).*$`), and Layer-7 bot log attribution.
+- **[How to Get Your Shopify or WordPress Store Recommended on ChatGPT](https://answerrail.com/geo/shopify-wordpress-store-recommended-chatgpt)**: E-commerce GEO guide to fixing 60k–120k token Liquid/Elementor bloat and JS-hidden variant prices with Byte-0 Markdown Catalog Tables.
+- **[2026 AEO & GEO Tools Matrix (All Website Stacks)](https://answerrail.com/geo/best-aeo-tools)**: Full 3-layer AEO & GEO architecture comparison across WordPress, Shopify, Webflow, static HTML, and Next.js.
+- **[How to Get Recommended on ChatGPT, Gemini, Perplexity & Claude](https://answerrail.com/geo/how-to-get-recommended-on-chatgpt)**: 7-question Symptom-to-Recommendation Router and 4-step technical implementation playbook.
+
+---
+
 ## License
 
 MIT © [The Quite Good Project](https://github.com/quitegoodproject)
+
