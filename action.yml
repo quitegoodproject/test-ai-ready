@@ -1,0 +1,51 @@
+name: 'AnswerRail AI Readiness & Token Truncation Audit'
+description: 'Audits deploy previews or production URLs for AI crawler readiness, DOM bloat, 25k-token context truncation in Perplexity & SearchGPT, and Google Lighthouse 13.5 Agentic Browsing (ARD 1.0 & /llms.txt).'
+author: 'AnswerRail'
+branding:
+  icon: 'shield'
+  color: 'blue'
+
+inputs:
+  url:
+    description: 'The target URL to audit (e.g. your production domain or Vercel/Netlify deploy preview URL).'
+    required: true
+  max_tokens:
+    description: 'The token cutoff threshold (defaults to 25000 for Perplexity and SearchGPT).'
+    required: false
+    default: '25000'
+  fail_on_truncation:
+    description: 'Whether to fail the CI/CD job if the HTML exceeds the 25k token cutoff.'
+    required: false
+    default: 'false'
+  comment_on_pr:
+    description: 'Whether to post an automated review comment to the Pull Request.'
+    required: false
+    default: 'true'
+  github_token:
+    description: 'GitHub token for posting PR comments and check runs (defaults to secrets.GITHUB_TOKEN).'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  tokens:
+    description: 'Estimated tokens in origin HTML payload.'
+  markdown_tokens:
+    description: 'Estimated tokens in AnswerRail edge-optimized markdown.'
+  token_savings_percent:
+    description: 'Percentage reduction in token bloat.'
+  is_truncated:
+    description: 'Whether the origin HTML exceeds the 25,000-token context ceiling (true/false).'
+  truncation_risk:
+    description: 'Truncation risk level (SAFE, WARNING, CRITICAL).'
+  grade:
+    description: 'AI Ingestion Readiness Grade (A+, A, B, C, F).'
+  llms_txt_valid:
+    description: 'Whether /llms.txt is present and contains valid markdown headings (true/false).'
+  ard_valid:
+    description: 'Whether /.well-known/ai-catalog.json conforms to Lighthouse 13.5 ARD 1.0 schema (true/false).'
+  report_markdown:
+    description: 'Full formatted Markdown summary of the audit.'
+
+runs:
+  using: 'node20'
+  main: 'bin/github-action.js'
