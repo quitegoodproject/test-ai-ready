@@ -1,6 +1,6 @@
 {
   "name": "answerrail",
-  "version": "1.2.7",
+  "version": "1.2.13",
   "description": "4-in-1 AEO & GEO Platform, RFC 9110 Accept: text/markdown Next.js Middleware & Cloudflare Edge Reverse Proxy — serve clean Markdown to PerplexityBot, ClaudeBot & OAI-SearchBot with 100% static price/FAQ recall, /llms.txt & /.well-known/ai-catalog.json (ARD 1.0)",
   "main": "client/index.js",
   "types": "client/index.d.ts",
