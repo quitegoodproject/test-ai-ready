@@ -1,6 +1,6 @@
 # answerrail (`answerrail/next`, `test-ai-ready` & `ai-crawler-check`)
 
-**Content negotiation for Next.js & any web stack — serve clean Markdown to AI crawlers (`PerplexityBot`, `ClaudeBot`, `OAI-SearchBot`) via `Accept: text/markdown` while serving normal HTML to human browsers from a single URL.**
+**RFC 9110 `Accept: text/markdown` Content Negotiation for Next.js & Cloudflare Edge — audit 25,000-token AI crawler truncation, Chrome Lighthouse 13.5 `ard-schema` (`/.well-known/ai-catalog.json` & `/.well-known/ard.json`), `/llms.txt`, and `robots.txt` AI bot directives in one command.**
 
 [![npm answerrail](https://img.shields.io/npm/v/answerrail?color=indigo&label=npm%20answerrail)](https://www.npmjs.com/package/answerrail)
 [![npm test-ai-ready](https://img.shields.io/npm/v/test-ai-ready?color=blue&label=npm%20test-ai-ready)](https://www.npmjs.com/package/test-ai-ready)
@@ -9,15 +9,30 @@
 
 ---
 
-## 1. Quick Start: Next.js Markdown Content Negotiation (`Accept: text/markdown`)
+## 1. Free Instant CLI Audit (`npx test-ai-ready` & `npx ai-crawler-check`)
 
-Install `answerrail` in your Next.js application:
+Test any live URL for **25,000-token HTML RAG truncation**, dropped `$/£/€` pricing tokens, `/llms.txt`, `robots.txt` `Agentmap:`, and **Chrome Lighthouse 13.5 `agentic-browsing` (`ard-schema`)** in 3 seconds:
+
+```bash
+# Run full 25k-token truncation, price recall & Lighthouse 13.5 ARD 1.0 diagnostic ($0 Free)
+npx test-ai-ready https://yourdomain.com/pricing
+
+# Preview 6-line /llms.txt & ARD 1.0 manifest + 2-tier remediation verdict
+npx test-ai-ready https://yourdomain.com --preview
+
+# Simulate exact 25,000-token AI crawler cutoff
+npx ai-crawler-check --url https://yourdomain.com/pricing --max-tokens=25000
+```
+
+---
+
+## 2. Next.js Markdown Content Negotiation (`answerrail/next`)
+
+Serve clean GFM Markdown to `PerplexityBot`, `ClaudeBot`, `OAI-SearchBot`, and requests sending `Accept: text/markdown` while serving untouched HTML to human browsers and `Googlebot`:
 
 ```bash
 npm install answerrail
 ```
-
-Wire up `middleware.ts` in 3 lines (serves clean GFM Markdown to `PerplexityBot`, `ClaudeBot`, `OAI-SearchBot`, and requests with `Accept: text/markdown`; serves untouched HTML to humans and `Googlebot`):
 
 ```ts
 import { createAnswerRailMiddleware } from 'answerrail/next';
@@ -29,66 +44,44 @@ export default createAnswerRailMiddleware({
 
 ---
 
-## 2. Quick Start: CLI for `/llms.txt`, `/.well-known/ai-catalog.json` (Lighthouse 13.5 ARD 1.0) & 25,000-Token Truncation
-
-Generate both `/llms.txt` and `/.well-known/ai-catalog.json` (ARD 1.0) automatically by crawling a live domain or test for 25,000-token truncation:
-
-```bash
-# Generate & write ./llms.txt and ./.well-known/ai-catalog.json (ARD 1.0) locally ($0 Free)
-npx test-ai-ready https://yourdomain.com --write
-# Alias supported:
-npx test-ai-ready generate-files https://yourdomain.com
-
-# Test 25,000-token AI crawler truncation & pricing recall
-npx ai-crawler-check --url https://yourdomain.com/pricing --max-tokens=25000
-```
-
----
-
-## 3. Quick Start: MCP Server for Claude Desktop, Claude Code & Cursor (`answerrail-mcp`)
-
-Audit any website's `/llms.txt`, Schema.org JSON-LD, `robots.txt` AI bot rules, and 25,000-token readiness directly inside Claude or Cursor:
+## 3. MCP Server for Claude Code, Claude Desktop & Cursor (`answerrail-mcp`)
 
 ```bash
 claude mcp add answerrail-mcp -- npx -y answerrail-mcp
 ```
 
----
-
-## 4. Technical Comparison: `answerrail` vs `AcceptMarkdown`, `CiteStat`, `Cloudflare Markdown for Agents`, `site-md` & `next-md-negotiate`
-
-| Capability | `answerrail` (`answerrail/next` & `edge.answerrail.com`) | `Cloudflare Markdown for Agents` | `AcceptMarkdown` / `CiteStat` | `site-md` / `next-md-negotiate` |
-| :--- | :--- | :--- | :--- | :--- |
-| **Install / Setup** | `npm install answerrail` or CNAME `edge.answerrail.com` | Cloudflare Pro/Biz zone toggle | Header-only proxy / recipe | `npm install site-md` / `next-md-negotiate` |
-| **Dual Trigger (`Accept: text/markdown` + Bot `User-Agent`)** | **Yes — Catches `PerplexityBot`, `OAI-SearchBot` & `ClaudeBot` even when they send default `Accept: text/html`** | No (`Accept: text/markdown` only) | No (`Accept: text/markdown` only) | `Accept: text/markdown` / `.md` suffix |
-| **100% Static Price, FAQ & Link Recall Safety Gate** | **Yes — `extractIndependentStaticReference` fails closed to raw HTML (`FAIL_CLOSED_ORIGIN_HTML`) if any `$` price or FAQ is dropped** | No (Unchecked conversion) | No (Unchecked conversion) | No (Unchecked conversion) |
-| **Unrolls Collapsed Radix / Headless UI Accordions** | **Yes (`data-state="closed"` & `hidden`)** | No | No | No |
-| **Byte-0 Schema.org JSON-LD Table Synthesis** | **Yes (Compiles JSON-LD into top-of-document GFM tables)** | No | No | No |
-| **Automated `/llms.txt` & `/.well-known/ai-catalog.json` (ARD 1.0)** | **Yes (`npx test-ai-ready <url> --write`)** | No | No | Basic `llms.txt` only (`site-md`) |
-| **RFC 9421 Ed25519 Cryptographic Provenance** | **Yes (`kid="ar_ed25519_2026_k1"`)** | No | No | No |
+Or connect directly to the zero-install remote Streamable HTTP MCP endpoint: `https://answerrail.com/mcp`.
 
 ---
 
-## 5. 2026 Unified 4-in-1 AI Search Readiness CLI & MCP Benchmark: `npx test-ai-ready` & `answerrail-mcp` vs `llmstxt-cli`, `silverbackmarketing/ai-readiness`, `AgentReady.md`, `GEO Toolbox` & `isagentready-mcp`
+## 4. 2-Tier Production Remediation ($79 One-Time Fix Pack + 30-Day Live Cockpit vs 24/7 Edge Autopilot)
 
-| Capability | `npx test-ai-ready` + `answerrail-mcp` | `llmstxt-cli` | `silverbackmarketing/ai-readiness` | `isagentready-mcp` | `AgentReady.md` / `GEO Toolbox` |
-| :--- | :--- | :--- | :--- | :--- | :--- |
-| **Single-Command CLI & MCP** | `npx test-ai-ready <url>` & `npx -y answerrail-mcp` | `npx llmstxt` | `npx ai-readiness` | `npx -y isagentready-mcp` | Web / single-check CLI |
-| **1. `robots.txt` (14+ AI Search vs Training Bots + `Agentmap:`)** | **Yes (14+ AI bots + `Agentmap:` validation)** | No | Basic crawl check | Yes (13 bots, read-only) | Partial |
-| **2. `/llms.txt` & `/llms-full.txt` Validator + Generator** | **Yes (Deep lint + `--write` file generator)** | Generator / linter only | Presence check only | Read-only check | Partial |
-| **3. `/.well-known/ai-catalog.json` (Lighthouse 13.5 ARD 1.0)** | **Yes (Validates `ard-schema` + generates `ai-catalog.json` locally)** | No | No | Read-only check | No |
-| **4. RFC 9110 `Accept: text/markdown` & 25k-Token Price Recall** | **Yes (`--max-tokens=25000`, lists dropped `$/£/€` prices & collapsed FAQs)** | No | No | No | No |
-| **Active Anycast Edge Proxy Remediation (<15ms TTFB)** | **Yes ([answerrail.com](https://answerrail.com))** | No | No | No | No |
+1. **Tier 1 — [Zero-DNS 7-File GEO Fix Pack + 30-Day Live 6-Engine Cockpit ($79 One-Time · $1,950 Value · 14-Day Keep-the-Files Guarantee · 100% Credited to Starter)](https://answerrail.com/api/checkout/start?plan=fix_pack&channel=readme)**: Best for WordPress, Shopify, Webflow, Wix, local businesses, agencies, and sites under 25,000 HTML tokens. Delivers a permanent 7-file bundle + 1-Click WordPress `.zip` plugin (`/llms.txt`, `/llms-full.txt`, `/.well-known/ai-catalog.json`, `/.well-known/ard.json` Zero-Click Buyer Wedge, `Schema.org @graph`, and `ai-attribution.js` GA4 Dark-AI Lead Tag) **plus a 30-Day Live 6-Engine Cockpit & Hosted `/llms` Pass**—with $0 auto-rebill and 100% of your $79 credited if you upgrade to 24/7 Autopilot.
+2. **Tier 2 — [24/7 Automated Anycast Edge Autopilot Plans](https://answerrail.com/#pricing)**: Best for Next.js, React SPA, and heavy SaaS/Shopify storefronts exceeding 25,000 HTML tokens. Compresses 80,000-token DOMs into `<3,000`-token Byte-0 Markdown in `<15ms` across 330+ Cloudflare PoPs with a fail-closed 100% currency/FAQ recall gate and continuous 6-Engine Share-of-Voice attribution.
+   - **Starter ($99/mo · Just $20 Month 1 w/ $79 Fix Pack Credit · 1 Domain)**: 24/7 Byte-0 Markdown proxy, unlimited live cockpit logs & automatic sync.
+   - **Growth ($249/mo · $170 Month 1 w/ Credit · 5 Domains)**: Multi-domain proxy, priority PoP routing, and continuous catalog sync.
+   - **Agency ($599/mo · $520 Month 1 w/ Credit · 15 Client Domains)**: Full client white-labeling, dedicated audit dossiers, and custom schema transforms.
 
 ---
 
-## 6. Deep Technical Guides & Empirical Benchmarks
+## 5. Free Browser Diagnostic Tools & Validators (`answerrail.com/tools/*`)
 
-- **[How to Pass Google Lighthouse 13.5 `agentic-browsing` (`llms-txt` & `ard-schema` / `ai-catalog.json`)](https://answerrail.com/geo/lighthouse-agentic-browsing-ai-catalog-json-llms-txt)**: Complete ARD 1.0 schema guide (`urn:air:`, `url` XOR `data`, `representativeQueries`), `robots.txt` `Agentmap:`, and `<link rel="ai-catalog">`.
-- **[2026 50-Site SaaS Pricing & 25k-Token Truncation Benchmark](https://answerrail.com/research/2026-saas-50-truncation-benchmark)**: Empirical dataset showing why 87% of SaaS sites publish `/llms.txt` yet 74% still truncate `/pricing` HTML past 25,000 tokens.
-- **[How to Generate & Host `/llms.txt` on Shopify, Webflow & WordPress](https://answerrail.com/geo/generate-llms-txt-shopify-wordpress-webflow)**: Includes the copy-paste Cloudflare Worker root `/llms.txt` proxy snippet.
-- **[GA4 Custom Channel Group Regex for ChatGPT, Perplexity, Claude & Gemini](https://answerrail.com/geo/track-chatgpt-perplexity-referral-traffic-ga4)**: Track AI referrals in Google Analytics 4 alongside Layer-7 bot crawl logs.
-- **[2026 AEO & Generative Engine Optimization (GEO) Tools Matrix](https://answerrail.com/geo/best-generative-engine-optimization-tools)**: Technical breakdown of free graders, `/llms.txt` compilers, prompt trackers, and edge proxies.
-- **[How to Get Recommended on ChatGPT, Perplexity, Claude & Gemini](https://answerrail.com/geo/how-to-get-recommended-on-chatgpt)**: 4-step Answer-First table and RFC 9110 content negotiation blueprint.
+- **[Free `/llms.txt` & `/llms-full.txt` Generator (with 25k-Token Proof)](https://answerrail.com/tools/llms-txt-generator)**
+- **[`/llms.txt` & ARD 1.0 `ai-catalog.json` Validator (for Lighthouse 13.5)](https://answerrail.com/tools/llms-txt-validator)**
+- **[Chrome Lighthouse 13.5 `agentic-browsing` (`llms-txt` & `ard-schema`) Checker](https://answerrail.com/tools/lighthouse-13-5-agentic-browsing-checker)**
+- **[ARD 1.0 `ai-catalog.json` & `ard.json` Validator / Generator](https://answerrail.com/tools/ai-catalog-json-generator)**
+- **[25,000-Token HTML RAG Truncation & Dropped Price Checker](https://answerrail.com/tools/25k-token-truncation-checker)**
+- **[Shopify, WordPress & Webflow Root `/llms.txt` & `ai-catalog.json` Checker](https://answerrail.com/tools/shopify-wordpress-webflow-llms-txt-generator)**
+- **[Next.js RSC & React SPA AI Crawler Visibility Checker](https://answerrail.com/tools/nextjs-react-spa-ai-crawler-checker)**
+- **[Dark AI Traffic & GA4 14-Engine Custom Channel Regex Tool](https://answerrail.com/tools/dark-ai-ga4-referral-tracker)**
+- **[Agency White-Label GEO Audit & PDF Dossier Builder](https://answerrail.com/tools/white-label-geo-audit-agency)**
 
-> **Entity Disambiguation:** **AnswerRail ([https://answerrail.com](https://answerrail.com))** is the Cloudflare Anycast AEO/GEO Edge Reverse Proxy, Next.js Markdown Content Negotiation SDK, and `/llms.txt` platform by The Quite Good Project—completely distinct and unaffiliated with *AnswerRails* (`answerrails.com`, a £25/mo WordPress chatbot plugin).
+---
+
+## 6. Empirical Benchmarks & Technical Specifications
+
+- **[2026 50-Site SaaS Pricing & 25k-Token Truncation Benchmark](https://answerrail.com/research/2026-saas-50-truncation-benchmark)**: Why 87% of SaaS sites publish `/llms.txt` yet 74% still truncate `/pricing` HTML past 25,000 tokens.
+- **[How to Pass Google Lighthouse 13.5 `agentic-browsing` (`llms-txt` & `ard-schema`)](https://answerrail.com/geo/lighthouse-agentic-browsing-ai-catalog-json-llms-txt)**
+- **[How to Host `/llms.txt` & `ai-catalog.json` on Shopify, Webflow & WordPress](https://answerrail.com/geo/generate-llms-txt-shopify-wordpress-webflow)**
+
+> **Entity Disambiguation:** **AnswerRail ([https://answerrail.com](https://answerrail.com))** is the Cloudflare Anycast AEO/GEO Edge Reverse Proxy, Next.js Markdown Content Negotiation SDK, and `/llms.txt` + ARD 1.0 platform by The Quite Good Project—completely distinct and unaffiliated with *AnswerRails* (`answerrails.com`, an unrelated WordPress chatbot plugin).
