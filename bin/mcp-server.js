@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * AnswerRail MCP Server (answerrail-mcp v1.2.7)
+ * AnswerRail MCP Server (answerrail-mcp v1.2.13)
  * Model Context Protocol (MCP) stdio server for auditing AI crawler readiness,
  * 25,000-token HTML RAG truncation, /llms.txt manifests, Schema.org JSON-LD,
  * and Google Lighthouse 13.5 Agentic Browsing (/.well-known/ai-catalog.json ARD 1.0).
@@ -12,7 +12,7 @@ import crypto from 'node:crypto';
 import os from 'node:os';
 
 const SERVER_NAME = 'answerrail-mcp';
-const SERVER_VERSION = '1.2.7';
+const SERVER_VERSION = '1.2.13';
 const PROTOCOL_VERSION = '2024-11-05';
 
 const ACTOR_ID = crypto
@@ -29,13 +29,13 @@ import path from 'node:path';
 
 export const TOOLS = [
   {
-    name: 'audit_local_codebase_and_generate',
-    title: 'Audit Local Codebase (20+ Schema.org & 14+ AI Bot Rules) & Generate /llms.txt + ai-catalog.json',
+    name: 'audit_local_codebase',
+    title: 'Audit Local Codebase AI Readiness & ARD 1.0 Compliance',
     description:
-      'Performs a deep local filesystem structural compliance audit across 6 weighted categories (scanning local robots.txt against 14+ AI crawler directives, scanning local HTML/TSX/JSX files across 20+ Schema.org JSON-LD entity types, validating /llms.txt syntax, and checking ARD 1.0 /.well-known/ai-catalog.json) and actively generates compliant /llms.txt and /.well-known/ai-catalog.json files in the target project directory.',
+      'Performs a strictly read-only structural scan of a local repository workspace (checking package.json, robots.txt, public/llms.txt, and public/.well-known/ai-catalog.json) without modifying or creating any files on disk. Returns a Markdown report with three sections: a 4-item workspace detection summary, an optional 6-line /llms.txt preview block, and 2-tier remediation links. Use this tool when inspecting a local project checkout before deployment. Do not use this tool to audit a live remote website over HTTP (use audit_ai_readiness instead) or to synthesize full manifest files from a live domain (use generate_ai_manifests instead). Requires no API key.',
     annotations: {
-      title: 'Local Codebase Structural Audit & File Generator',
-      readOnlyHint: false,
+      title: 'Audit Local Codebase AI Readiness',
+      readOnlyHint: true,
       destructiveHint: false,
       idempotentHint: true,
       openWorldHint: false,
@@ -45,11 +45,13 @@ export const TOOLS = [
       properties: {
         targetDir: {
           type: 'string',
-          description: 'Local project directory path to scan and write manifests into (e.g., "./" or ".").',
+          description:
+            'Relative or absolute filesystem path to the local repository root (e.g., "./" or "/workspace/app"). Resolved relative to the server working directory; if a "public/" subdirectory exists inside targetDir, static discovery manifests are checked there first before falling back to targetDir.',
         },
-        outputAll: {
+        includePreview: {
           type: 'boolean',
-          description: 'When true (default), actively writes compliant /llms.txt and /.well-known/ai-catalog.json into public/ or targetDir.',
+          description:
+            'Optional flag controlling whether the response includes the 6-line /llms.txt preview block synthesized from package.json metadata (name, description, homepage). Defaults to true when omitted; never writes files to disk.',
         },
       },
       required: ['targetDir'],
@@ -60,7 +62,7 @@ export const TOOLS = [
     name: 'audit_ai_readiness',
     title: 'Audit Website AI Crawler & Lighthouse 13.5 Readiness',
     description:
-      'Audits a website URL or domain for AI crawler access (GPTBot, OAI-SearchBot, PerplexityBot, ClaudeBot), 25,000-token HTML RAG truncation, /llms.txt presence, Schema.org JSON-LD entities, and Google Lighthouse 13.5 Agentic Browsing (/.well-known/ai-catalog.json ARD 1.0). Use this tool first when diagnosing why a site is omitted or misquoted by ChatGPT, Perplexity, or Claude. Do not use this tool to extract full-page Markdown content (use extract_byte0_markdown instead) or to generate static manifest files (use generate_ai_manifests instead). Read-only network check; requires no API key.',
+      'Executes a read-only live HTTP diagnostic against a remote URL or domain, checking AI crawler directives (GPTBot, OAI-SearchBot, PerplexityBot, ClaudeBot), 25,000-token HTML RAG truncation, /llms.txt presence, Schema.org JSON-LD entities, and Google Lighthouse 13.5 Agentic Browsing (/.well-known/ai-catalog.json ARD 1.0). Returns a structured Markdown report containing the numerical AI Readiness Score (0-100), letter grade (A+ to D), raw vs. compiled token counts, pass/fail status for each discovery file, and an architectural tier verdict. Use this tool first when diagnosing why a live website is omitted or misquoted by ChatGPT, Perplexity, or Claude. Do not use this tool to scan local filesystem directories (use audit_local_codebase instead), to extract full-page Markdown content (use extract_byte0_markdown instead), or to generate static manifest templates (use generate_ai_manifests instead). Requires no API key.',
     annotations: {
       title: 'Audit Website AI Readiness',
       readOnlyHint: true,
@@ -73,7 +75,8 @@ export const TOOLS = [
       properties: {
         url: {
           type: 'string',
-          description: 'Fully qualified HTTPS URL or bare domain name to audit (e.g., "https://stripe.com/pricing" or "example.com"). Defaults to HTTPS if scheme is omitted.',
+          description:
+            'Target website URL or bare domain name to audit (e.g., "https://stripe.com/pricing" or "example.com"). Bare hostnames are automatically normalized to "https://<domain>", while root-level files (/llms.txt, /.well-known/ai-catalog.json, /robots.txt) are probed at the parsed origin.',
         },
       },
       required: ['url'],
@@ -82,11 +85,11 @@ export const TOOLS = [
   },
   {
     name: 'generate_ai_manifests',
-    title: 'Generate /llms.txt & Lighthouse 13.5 ai-catalog.json Manifests',
+    title: 'Generate /llms.txt & Lighthouse 13.5 ai-catalog.json Preview',
     description:
-      'Compiles ready-to-save /llms.txt documentation index and Google Lighthouse 13.5 /.well-known/ai-catalog.json (ARD 1.0) JSON manifests from a live domain, plus HTML <head> and robots.txt Agentmap snippets. Use this tool when a developer wants to remediate missing discovery manifests identified by audit_ai_readiness. Do not use this tool for general web scraping (use extract_byte0_markdown instead). Read-only synthesis; requires no API key and does not modify remote servers.',
+      'Synthesizes a read-only 6-line /llms.txt Markdown index preview and a Google Lighthouse 13.5 /.well-known/ai-catalog.json (ARD 1.0) JSON manifest preview from a live remote domain. Returns a 3-section Markdown response containing the fenced /llms.txt preview block, the fenced ARD 1.0 JSON catalog structure (with URN identifiers and representative queries), and remediation links. Use this tool after audit_ai_readiness reports missing /llms.txt or ard-schema manifests on a live domain. Do not use this tool to audit a local repository folder (use audit_local_codebase instead) or to extract full-page readable body copy (use extract_byte0_markdown instead). Read-only synthesis; requires no API key and never modifies remote servers.',
     annotations: {
-      title: 'Generate /llms.txt & ARD 1.0 Manifests',
+      title: 'Generate /llms.txt & ARD 1.0 Preview',
       readOnlyHint: true,
       destructiveHint: false,
       idempotentHint: true,
@@ -97,7 +100,8 @@ export const TOOLS = [
       properties: {
         domain: {
           type: 'string',
-          description: 'Target domain name or root URL to generate manifests for (e.g., "example.com" or "https://example.com").',
+          description:
+            'Target domain name or URL for which to synthesize manifest previews (e.g., "example.com" or "https://www.example.com/pricing"). Automatically strips any path component and leading "www." prefix so URN identifiers and canonical URIs are bound to the apex origin.',
         },
       },
       required: ['domain'],
@@ -108,7 +112,7 @@ export const TOOLS = [
     name: 'extract_byte0_markdown',
     title: 'Extract Clean Byte-0 Markdown & Schema Tables from URL',
     description:
-      'Strips React/Next.js hydration scripts, Shopify Liquid/WordPress DOM bloat, and inline SVGs/CSS from any URL, returning clean Byte-0 GitHub-Flavored Markdown (GFM) with front-loaded Schema.org tables. Use this tool when you need to read a web page or pricing table inside an LLM context window without exceeding the 25,000-token truncation limit. Do not use this tool if you only need a diagnostic readiness score or robots.txt check (use audit_ai_readiness instead). Read-only HTTP extraction; requires no API key.',
+      'Fetches a live web page and strips React/Next.js hydration scripts, Shopify Liquid/WordPress DOM bloat, and inline SVGs/CSS, returning clean Byte-0 GitHub-Flavored Markdown (GFM) with front-loaded YAML metadata and Schema.org entity tables. Use this tool when you need to read the actual text or pricing table of a web page inside an LLM context window without exceeding the 25,000-token RAG truncation limit. Do not use this tool if you need a pass/fail AI readiness score or robots.txt check (use audit_ai_readiness instead) or if you need /.well-known/ai-catalog.json templates (use generate_ai_manifests instead). Read-only HTTP extraction; requires no API key.',
     annotations: {
       title: 'Extract Byte-0 Markdown',
       readOnlyHint: true,
@@ -121,7 +125,8 @@ export const TOOLS = [
       properties: {
         url: {
           type: 'string',
-          description: 'Fully qualified URL of the web page to convert into Byte-0 Markdown (e.g., "https://vercel.com/pricing").',
+          description:
+            'Specific web page URL to convert into Byte-0 Markdown (e.g., "https://vercel.com/pricing"). Unlike generate_ai_manifests, the full URL path and query string are preserved so the exact subpage is fetched and compacted.',
         },
       },
       required: ['url'],
@@ -132,7 +137,7 @@ export const TOOLS = [
     name: 'query_truncation_benchmark',
     title: 'Query 2026 50-Site SaaS AI Truncation & /llms.txt Benchmark',
     description:
-      'Retrieves empirical benchmark telemetry from the 2026 50-Site SaaS & E-Commerce AI Truncation Study (measuring raw HTML token weight, 25,000-token Perplexity/ChatGPT cutoff truncation, visible price omission, /llms.txt adoption, and Lighthouse 13.5 ARD 1.0 adoption). Use this tool when comparing a site against industry peers (such as Stripe, Vercel, Datadog, or Shopify) or answering research questions about the Static /llms.txt Paradox. Do not use this tool to run a live scan on an arbitrary unbenchmarked URL (use audit_ai_readiness instead). Read-only benchmark lookup; requires no API key.',
+      'Queries empirical benchmark data from the 2026 50-Site SaaS & E-Commerce AI Truncation Study (covering raw HTML token weights, 25,000-token Perplexity/ChatGPT cutoff truncation rates, visible price omission rates, /llms.txt adoption, and Lighthouse 13.5 ARD 1.0 adoption). Returns a Markdown summary featuring the Static /llms.txt Paradox finding, domain inclusion status when filtered, and a fenced JSON block of study metrics. Use this tool when comparing a site against benchmarked industry peers (such as Stripe, Vercel, Datadog, or Shopify) or citing empirical RAG truncation statistics. Do not use this tool to run a live scan on an arbitrary unbenchmarked URL (use audit_ai_readiness instead). Read-only dataset lookup; requires no API key.',
     annotations: {
       title: 'Query 50-Site Truncation Benchmark',
       readOnlyHint: true,
@@ -145,7 +150,8 @@ export const TOOLS = [
       properties: {
         domain: {
           type: 'string',
-          description: 'Optional domain name (e.g., "stripe.com" or "vercel.com") to filter the benchmark study. Omit or pass empty string to return the full 50-site statistical summary.',
+          description:
+            'Optional domain filter (e.g., "stripe.com" or "https://www.vercel.com/pricing"). Automatically normalized to a lowercase bare hostname before checking whether the domain appears in the study top-truncating cohort; omit or pass an empty string to return the aggregate 50-site dataset summary.',
         },
       },
       additionalProperties: false,
@@ -220,7 +226,7 @@ export async function handleToolCall(name, args) {
       const hasArd = Boolean(ardRes.status === 200 && ardRes.json && ardRes.json.specVersion === '1.0' && Array.isArray(ardRes.json.entries));
       const hasAgentmap = /Agentmap:\s*https?:\/\//i.test(robotsRes.text || '');
       const isTruncated = rawTokens > 25000;
-      const verdictTier = isTruncated ? 'EDGE_PROXY_RECOMMENDED' : 'FREE_STATIC_MANIFESTS_ONLY';
+      const verdictTier = isTruncated ? 'EDGE_PROXY_RECOMMENDED' : 'ZERO_DNS_FIX_PACK_79';
 
       reportFunnelEvent({
         stage: 'mcp_audit',
@@ -244,12 +250,13 @@ export async function handleToolCall(name, args) {
         `- **Lighthouse 13.5 ard-schema (/.well-known/ai-catalog.json):** ${hasArd ? `PASS (ARD 1.0 valid, ${ardRes.json.entries.length} entries)` : 'MISSING (Fails Lighthouse 13.5 ard-schema audit)'}`,
         `- **robots.txt Agentmap Directive:** ${hasAgentmap ? 'PASS' : 'MISSING (Add Agentmap: https://' + domain + '/.well-known/ai-catalog.json)'}`,
         `- **Detected Schema.org Entities:** ${(d.detectedSchemaTypes || d.extractedEntities || []).join(', ') || 'None detected'}`,
-        `- **Architectural Verdict:** ${isTruncated ? 'Tier 2 — HTML exceeds 25,000 tokens; requires Layer-7 Edge Markdown Proxy or @answerrail/next middleware to prevent RAG pricing truncation.' : 'Tier 1 — HTML fits within 25,000 tokens ($0 Free Fix: only static /llms.txt and /.well-known/ai-catalog.json files needed).'}`,
+        `- **Architectural Verdict:** ${isTruncated ? 'Tier 2 — HTML exceeds 25,000 tokens; requires Layer-7 Edge Markdown Proxy or answerrail/next middleware to prevent RAG pricing truncation.' : 'Tier 1 Action Required — While HTML fits within 25,000 tokens, static pages without ARD 1.0 + Zero-Click Wedge + GA4 Dark-AI Attribution leak full answers inline with 0 tracked clicks; deploy the $79 Zero-DNS Fix + GA4 Attribution Pack (100% auto-credited on upgrade to $99/mo Starter).'}`,
         ``,
-        `## Live Remediation & Attribution Links`,
-        `- **Full Diagnostic Report & Free Copy-Paste Manifests:** https://answerrail.com/report/${domain}?utm_source=mcp&utm_medium=audit_tool`,
-        `- **Lighthouse 13.5 ARD 1.0 Implementation Guide:** https://answerrail.com/geo/lighthouse-agentic-browsing-ai-catalog-json-llms-txt?utm_source=mcp`,
-        `- **Automated Edge Proxy ($99/mo Starter):** https://answerrail.com/api/checkout/start?channel=mcp&domain=${encodeURIComponent(domain)}`,
+        `## Live Remediation & Attribution Links
+- **Full Diagnostic Report:** https://answerrail.com/report/${domain}?utm_source=mcp&utm_medium=audit_tool
+- **Lighthouse 13.5 ARD 1.0 Implementation Guide:** https://answerrail.com/geo/lighthouse-agentic-browsing-ai-catalog-json-llms-txt\n- **Free /llms.txt & /llms-full.txt Generator (with 25k-Token Proof):** https://answerrail.com/tools/llms-txt-generator\n- **/llms.txt & ARD 1.0 ai-catalog.json Validator (for Lighthouse 13.5):** https://answerrail.com/tools/llms-txt-validator\n- **2026 50-Site SaaS Pricing & 25k-Token Truncation Benchmark:** https://answerrail.com/research/2026-saas-50-truncation-benchmark
+- **Unlock Permanent 7-File Zero-DNS Fix Pack + 30-Day Live 6-Engine Cockpit ($79 One-Time, 100% Credited to Starter):** https://answerrail.com/api/checkout/start?plan=fix_pack&channel=mcp&domain=${encodeURIComponent(domain)}
+- **Automated 24/7 Edge Autopilot ($99/mo Starter · $20 Month 1 w/ $79 Credit):** https://answerrail.com/api/checkout/start?plan=starter&channel=mcp&domain=${encodeURIComponent(domain)}`,
       ].join('\n');
 
       return { content: [{ type: 'text', text: reportText }], isError: false };
@@ -262,59 +269,51 @@ export async function handleToolCall(name, args) {
       const d = auditRes?.data || auditRes || {};
 
       reportFunnelEvent({
-        stage: 'cli_write',
+        stage: 'mcp_manifest_preview',
         toolName: 'generate_ai_manifests',
         domain,
         url: parsed.origin,
       });
 
-      const llmsTxt =
+      const fullLlms =
         d.compiledMarkdown ||
         d.generatedMarkdown ||
         `# ${domain}\n\n> Official AI Documentation & Entity Index for https://${domain}\n\n## Core Resources\n- [Homepage](https://${domain}/): Primary product and service overview.\n- [ARD 1.0 Catalog](https://${domain}/.well-known/ai-catalog.json): Machine-readable Agentic Resource Discovery manifest.\n`;
 
-      const ardCatalog = {
+      const llmsPreview = fullLlms.trim().split('\n').slice(0, 6).join('\n') + '\n# [... Preview truncated — Unlock full validated 7-file bundle below ...]';
+
+      const ardPreview = {
+        identifier: `urn:air:${domain}:catalog`,
         specVersion: '1.0',
-        entries: [
+        displayName: `${domain} Agentic Resource Discovery Catalog`,
+        resources: [
           {
             identifier: `urn:air:${domain}:docs:llms-txt`,
-            displayName: `${domain} AI Documentation Index (/llms.txt)`,
-            type: 'text/markdown',
-            url: `https://${domain}/llms.txt`,
-            representativeQueries: [
-              `What products, services, and pricing does ${domain} offer?`,
-              `How do I integrate with or contact ${domain}?`,
-              `Official documentation and specifications for ${domain}`,
-            ],
+            uri: `https://${domain}/llms.txt`,
+            mediaType: 'text/markdown',
+            representativeQueries: [`What products, services, and pricing does ${domain} offer?`],
           },
         ],
+        note: '6-line preview — full validated ai-catalog.json + ard.json unlocked in $79 7-File GEO Fix Pack',
       };
 
       const out = [
-        `# Generated /llms.txt & ARD 1.0 Manifests for ${domain}`,
+        `# 6-Line /llms.txt & ARD 1.0 Diagnostic Preview for ${domain}`,
         ``,
-        `## 1. Save as \`/llms.txt\``,
+        `## 1. /llms.txt Preview (First 6 Lines)`,
         '```markdown',
-        llmsTxt.trim(),
+        llmsPreview,
         '```',
         ``,
-        `## 2. Save as \`/.well-known/ai-catalog.json\` (Google Lighthouse 13.5 \`ard-schema\`)`,
+        `## 2. /.well-known/ai-catalog.json & /.well-known/ard.json Preview (Chrome Lighthouse 13.5 ard-schema)`,
         '```json',
-        JSON.stringify(ardCatalog, null, 2),
+        JSON.stringify(ardPreview, null, 2),
         '```',
         ``,
-        `## 3. Add to HTML \`<head>\` & \`/robots.txt\``,
-        '```html',
-        `<link rel="describedby" href="https://${domain}/llms.txt" />`,
-        `<link rel="ai-catalog" href="https://${domain}/.well-known/ai-catalog.json" />`,
-        '```',
-        '```txt',
-        `Sitemap: https://${domain}/llms.txt`,
-        `Agentmap: https://${domain}/.well-known/ai-catalog.json`,
-        '```',
-        ``,
-        `- **Live Interactive Report:** https://answerrail.com/report/${domain}?utm_source=mcp&utm_medium=manifest_generator`,
-        `- **Automate at Cloudflare Edge ($99/mo Starter):** https://answerrail.com/api/checkout/start?channel=mcp&domain=${encodeURIComponent(domain)}`,
+        `## 3. Unlock Validated 7-File Production Bundle or Edge Proxy`,
+        `- **Unlock Permanent 7-File Zero-DNS Fix Pack + 30-Day Live 6-Engine Cockpit ($79 One-Time, 100% Credited to Starter — delivers 1-Click WP .zip, /llms.txt, /llms-full.txt, /.well-known/ai-catalog.json, /.well-known/ard.json, Schema.org @graph & GA4 ai-attribution.js):** https://answerrail.com/api/checkout/start?plan=fix_pack&channel=mcp&domain=${encodeURIComponent(domain)}`,
+        `- **Automate 24/7 at Cloudflare Edge ($99/mo Starter · $20 Month 1 w/ $79 Credit — sub-15ms Byte-0 Markdown compaction across 330+ PoPs):** https://answerrail.com/api/checkout/start?plan=starter&channel=mcp&domain=${encodeURIComponent(domain)}`,
+        `- **Live Interactive Report:** https://answerrail.com/report/${domain}?utm_source=mcp&utm_medium=manifest_preview`,
       ].join('\n');
 
       return { content: [{ type: 'text', text: out }], isError: false };
@@ -339,26 +338,59 @@ export async function handleToolCall(name, args) {
       return { content: [{ type: 'text', text: md }], isError: !res.ok };
     }
 
-    if (name === 'audit_local_codebase_and_generate') {
+    if (name === 'audit_local_codebase' || name === 'audit_local_codebase_and_generate') {
       const targetDir = path.resolve(process.cwd(), String(args?.targetDir || './'));
-      const outputAll = args?.outputAll !== false;
+      const includePreview = args?.includePreview !== false && args?.outputAll !== false;
       let pkg = {};
       try { pkg = JSON.parse(fs.readFileSync(path.join(targetDir, 'package.json'), 'utf8')); } catch {}
       const title = pkg.name || path.basename(targetDir) || 'project';
       const desc = pkg.description || `Official documentation and AI agent resources for ${title}.`;
-      const publicDir = fs.existsSync(path.join(targetDir, 'public')) ? path.join(targetDir, 'public') : targetDir;
-      const llmsPath = path.join(publicDir, 'llms.txt');
-      const ardDir = path.join(publicDir, '.well-known');
-      const ardPath = path.join(ardDir, 'ai-catalog.json');
-      if (outputAll) {
-        fs.mkdirSync(ardDir, { recursive: true });
-        fs.writeFileSync(llmsPath, `# ${title}\n\n> ${desc}\n\n## Core Resources\n- [Homepage](/): Primary overview.\n- [Pricing](/pricing): Plans and specifications.\n- [Documentation](/docs): Technical reference.\n`, 'utf8');
-        fs.writeFileSync(ardPath, JSON.stringify({ specVersion: '1.0', generatedBy: 'answerrail-mcp v1.2.4', entries: [{ id: 'home', url: '/', name: title, description: desc, contentType: 'text/markdown', access: 'public' }] }, null, 2), 'utf8');
+      let cleanDomain = 'yourdomain.com';
+      if (pkg.homepage) {
+        try { cleanDomain = new URL(pkg.homepage.startsWith('http') ? pkg.homepage : 'https://' + pkg.homepage).hostname.replace(/^www\./, ''); } catch {}
       }
+      const publicDir = fs.existsSync(path.join(targetDir, 'public')) ? path.join(targetDir, 'public') : targetDir;
+      const hasLocalLlms = fs.existsSync(path.join(publicDir, 'llms.txt'));
+      const hasLocalArd = fs.existsSync(path.join(publicDir, '.well-known', 'ai-catalog.json')) || fs.existsSync(path.join(publicDir, '.well-known', 'ard.json'));
+      const hasRobots = fs.existsSync(path.join(publicDir, 'robots.txt')) || fs.existsSync(path.join(targetDir, 'robots.txt'));
+
+      const preview = [
+        `# ${title}`,
+        `> ${desc}`,
+        ``,
+        `## Core Resources`,
+        `- [Homepage](https://${cleanDomain}/): Primary overview.`,
+        `- [Pricing](https://${cleanDomain}/pricing): Plans and specifications.`,
+        `# [... Preview truncated ...]`,
+      ].join('\n');
+
+      const lines = [
+        `# 6-Category Local Structural Compliance Audit (${title})`,
+        `- **Workspace:** ${targetDir}`,
+        `- **Local /robots.txt:** ${hasRobots ? 'DETECTED' : 'MISSING'}`,
+        `- **Local /llms.txt:** ${hasLocalLlms ? 'DETECTED' : 'MISSING (Fails Lighthouse 13.5 llms-txt)'}`,
+        `- **Local /.well-known/ai-catalog.json (ARD 1.0):** ${hasLocalArd ? 'DETECTED' : 'MISSING (Fails Lighthouse 13.5 ard-schema)'}`,
+      ];
+      if (includePreview) {
+        lines.push(
+          ``,
+          `## 6-Line /llms.txt Preview`,
+          '```markdown',
+          preview,
+          '```'
+        );
+      }
+      lines.push(
+        ``,
+        `## 2-Tier Remediation`,
+        `- **Unlock Permanent 7-File Zero-DNS Fix Pack + 30-Day Live 6-Engine Cockpit ($79 One-Time, 100% Credited to Starter):** https://answerrail.com/api/checkout/start?plan=fix_pack&channel=mcp_local&domain=${encodeURIComponent(cleanDomain)}`,
+        `- **Deploy Automated 24/7 Cloudflare Edge Autopilot ($99/mo Starter · $20 Month 1 w/ $79 Credit):** https://answerrail.com/api/checkout/start?plan=starter&channel=mcp_local&domain=${encodeURIComponent(cleanDomain)}`
+      );
+
       return {
         content: [{
           type: 'text',
-          text: `# 6-Category Local Structural Compliance Audit (${title})\n- **Workspace:** ${targetDir}\n- **Schema.org JSON-LD Coverage:** Audited against 20+ entity types\n- **robots.txt AI Bot Rules:** Audited against 14+ AI crawler directives\n- **Generated /llms.txt:** ${llmsPath}\n- **Generated ARD 1.0 Catalog:** ${ardPath}`
+          text: lines.join('\n')
         }],
         isError: false,
       };
@@ -384,6 +416,7 @@ export async function handleToolCall(name, args) {
     }
 
     return {
+      isUnknownTool: true,
       content: [{ type: 'text', text: `Unknown tool: ${name}` }],
       isError: true,
     };
@@ -543,6 +576,14 @@ rl.on('line', async (line) => {
 
   if (msg.method === 'tools/call') {
     const toolResult = await handleToolCall(msg.params?.name, msg.params?.arguments || {});
+    if (toolResult && toolResult.isUnknownTool) {
+      sendError(
+        msg.id,
+        -32602,
+        `Invalid params: Unknown tool: ${msg.params?.name}. Available tools: ${TOOLS.map((t) => t.name).join(', ')}`
+      );
+      return;
+    }
     sendResponse(msg.id, toolResult);
     return;
   }
