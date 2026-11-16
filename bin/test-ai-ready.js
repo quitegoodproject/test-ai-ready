@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * AnswerRail AI-Ready CLI (test-ai-ready v1.2.4)
+ * AnswerRail AI-Ready CLI (test-ai-ready v1.2.9)
  * Audits any URL for:
  * 1. Perplexity / ChatGPT 25,000-Token HTML Truncation & Currency/Price Recall
  * 2. /llms.txt (llmstxt.org) Discovery & Markdown Format
@@ -18,7 +18,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const args = process.argv.slice(2);
-const shouldWrite = args.includes('--write') || args.includes('--init') || args.includes('-w') || args.includes('generate-files') || args.includes('generate') || args.includes('--output-all');
+const shouldWrite = args.includes('--preview') || args.includes('--write') || args.includes('--init') || args.includes('-w') || args.includes('generate-files') || args.includes('generate') || args.includes('--output-all');
 const jsonOutput = args.includes('--json');
 
 let customUrl = null;
@@ -53,22 +53,22 @@ const rawTarget = customUrl || positional[0];
 if (!rawTarget || args.includes('--help') || args.includes('-h')) {
   console.log(`
 \x1b[1m\x1b[38;2;129;140;248m╔══════════════════════════════════════════════════════════════════╗
-║      AnswerRail AI Readiness & Lighthouse 13.5 ARD CLI v1.2.4    ║
+║      AnswerRail AI Readiness Terminal Scanner (ARD CLI v1.2.13)  ║
 ║     Audits 25k Token Cutoff · /llms.txt · ai-catalog.json (ARD)  ║
 ╚══════════════════════════════════════════════════════════════════╝\x1b[0m
 
 \x1b[1mUsage:\x1b[0m
   npx test-ai-ready <url>                                  Run live 25k-token & Lighthouse 13.5 ARD audit
   npx ai-crawler-check --url <url> --max-tokens=25000      Verify 25,000-token crawler truncation & price recall
-  npx test-ai-ready <url> --write                          Generate & write ./llms.txt + /.well-known/ai-catalog.json ($0)
+  npx test-ai-ready <url> --preview                        Preview 6-line /llms.txt & ARD 1.0 manifest + $79 7-File Fix Pack
   npx test-ai-ready <url> --json                           Output raw machine-readable JSON metrics
 
 \x1b[1mExamples:\x1b[0m
   npx test-ai-ready https://vercel.com/pricing
   npx ai-crawler-check --url https://supabase.com/pricing --max-tokens=25000
-  npx test-ai-ready https://answerrail.com --write
+  npx test-ai-ready https://answerrail.com --preview
 
-\x1b[90m50-Site Empirical Benchmark & Docs: https://answerrail.com/research/2026-saas-50-truncation-benchmark\x1b[0m
+\x1b[90mFree Tools: https://answerrail.com/tools/llms-txt-generator · https://answerrail.com/tools/llms-txt-validator\n\x1b[90m2026 Benchmark: https://answerrail.com/research/2026-saas-50-truncation-benchmark\x1b[0m\n\x1b[90mOffers: $79 Fix Pack (7 Files Forever + 30-Day Live Cockpit) | Starter $99/mo ($20 Mo 1 w/ Credit) | Growth $249/mo | Agency $599/mo\x1b[0m
 `);
   process.exit(0);
 }
@@ -135,7 +135,7 @@ function runLocalCodebaseAuditAndGenerate(localDirInput, writeFiles) {
   const ardContent = JSON.stringify({
     $schema: 'https://answerrail.com/schemas/ai-catalog-v1.json',
     specVersion: '1.0',
-    generatedBy: 'ai-ready-cli / AnswerRail v1.2.4 (https://answerrail.com)',
+    generatedBy: 'ai-ready-cli / AnswerRail v1.2.9 (https://answerrail.com)',
     updatedAt: new Date().toISOString().split('T')[0],
     publisher: { name: projectTitle, url: origin, llmsTxtUrl: `${origin}/llms.txt` },
     entries: [
@@ -154,14 +154,10 @@ function runLocalCodebaseAuditAndGenerate(localDirInput, writeFiles) {
     ]
   }, null, 2);
 
-  if (writeFiles) {
-    fs.mkdirSync(wellKnownDir, { recursive: true });
-    fs.writeFileSync(llmsOutPath, llmsContent, 'utf8');
-    fs.writeFileSync(ardOutPath, ardContent, 'utf8');
-  }
+  // Read-only local diagnostic + 6-line preview (full 7-file validated bundle unlocked via $79 Fix Pack)
 
   console.log(`\n\x1b[1m\x1b[38;2;129;140;248m╔══════════════════════════════════════════════════════════════════╗`);
-  console.log(`║   AI-Ready CLI & Structural Compliance Auditor v1.2.4 (Local)    ║`);
+  console.log(`║   AI-Ready CLI & Structural Compliance Auditor v1.2.13 (Local)   ║`);
   console.log(`╚══════════════════════════════════════════════════════════════════╝\x1b[0m\n`);
   console.log(`• \x1b[1mTarget Workspace:\x1b[0m       ${localDir} (${projectTitle})`);
   console.log(`• \x1b[1mCategory 1 (robots.txt 14+ AI Bot Rules):\x1b[0m ${matchedBots.length}/14 explicit bot rules detected (${matchedBots.join(', ') || 'Defaulting to wildcard *'})`);
@@ -169,10 +165,14 @@ function runLocalCodebaseAuditAndGenerate(localDirInput, writeFiles) {
   console.log(`• \x1b[1mCategory 3 (/llms.txt Structural Check):\x1b[0m   ${fs.existsSync(llmsOutPath) ? '\x1b[32mPASS (Valid H1 + Blockquote + Markdown links)\x1b[0m' : '\x1b[33mMISSING\x1b[0m'}`);
   console.log(`• \x1b[1mCategory 4 (ARD 1.0 ai-catalog.json):\x1b[0m     ${fs.existsSync(ardOutPath) ? '\x1b[32mPASS (Lighthouse 13.5 ard-schema v1.0 valid)\x1b[0m' : '\x1b[33mMISSING\x1b[0m'}`);
   if (writeFiles) {
-    console.log(`\n\x1b[32m✔ Generated & wrote compliant discovery manifests:\x1b[0m`);
-    console.log(`  1. ${llmsOutPath}`);
-    console.log(`  2. ${ardOutPath}`);
+    const previewLines = llmsContent.trim().split('\n').slice(0, 6).join('\n');
+    console.log('\n\x1b[36m[6-LINE /llms.txt & ARD 1.0 PREVIEW]\x1b[0m');
+    console.log(previewLines + '\n# [... Preview truncated ...]');
   }
+  console.log('\n\x1b[1m\x1b[33m• Unlock Permanent 7-File Fix Pack + 30-Day Live 6-Engine Cockpit ($79 One-Time, 100% Credited to Starter):\x1b[0m');
+  console.log('  https://answerrail.com/api/checkout/start?plan=fix_pack&channel=cli_local&domain=' + encodeURIComponent(cleanDomain));
+  console.log('\x1b[1m\x1b[32m• Automate 24/7 at Cloudflare Edge ($99/mo Starter · $20 Month 1 w/ $79 Credit):\x1b[0m');
+  console.log('  https://answerrail.com/api/checkout/start?plan=starter&channel=cli_local&domain=' + encodeURIComponent(cleanDomain));
   console.log(`\n• \x1b[1mLive 25k-Token Edge Audit & MCP Server:\x1b[0m https://answerrail.com (or run: claude mcp add answerrail-mcp -- npx -y answerrail-mcp)\n`);
   process.exit(0);
 }
@@ -284,26 +284,15 @@ ${sectionSummary}
   return { llmsTxt, ardCatalog };
 }
 
-function writeLocalManifests(rawHtml, origin, cleanDomain) {
-  const { llmsTxt, ardCatalog } = buildLocalManifests(rawHtml, origin, cleanDomain);
-  const cwd = process.cwd();
-  const publicDir = path.join(cwd, 'public');
-  const baseDir = fs.existsSync(publicDir) && fs.statSync(publicDir).isDirectory() ? publicDir : cwd;
-
-  const llmsPath = path.join(baseDir, 'llms.txt');
-  const wellKnownDir = path.join(baseDir, '.well-known');
-  const ardPath = path.join(wellKnownDir, 'ai-catalog.json');
-
-  if (!fs.existsSync(wellKnownDir)) {
-    fs.mkdirSync(wellKnownDir, { recursive: true });
-  }
-  fs.writeFileSync(llmsPath, llmsTxt, 'utf8');
-  fs.writeFileSync(ardPath, JSON.stringify(ardCatalog, null, 2) + '\n', 'utf8');
-
-  return {
-    llmsPath: path.relative(cwd, llmsPath) || 'llms.txt',
-    ardPath: path.relative(cwd, ardPath) || '.well-known/ai-catalog.json',
-  };
+function buildManifestPreview(rawHtml, origin, cleanDomain) {
+  const { llmsTxt } = buildLocalManifests(rawHtml, origin, cleanDomain);
+  const llmsPreview = llmsTxt.trim().split('\n').slice(0, 6).join('\n') + '\n# [... Preview truncated — Unlock full 7-file bundle ($79) ...]';
+  const ardPreview = JSON.stringify({
+    identifier: 'urn:air:' + cleanDomain + ':catalog',
+    specVersion: '1.0',
+    resources: [{ uri: origin + '/llms.txt', mediaType: 'text/markdown' }]
+  }, null, 2);
+  return { llmsPreview, ardPreview };
 }
 
 async function runAudit() {
@@ -313,7 +302,7 @@ async function runAudit() {
 
   if (!jsonOutput) {
     console.log(
-      `\n\x1b[1m\x1b[38;2;129;140;248m[AnswerRail v1.2.4]\x1b[0m Probing \x1b[4m${targetUrl}\x1b[0m (Page + /robots.txt + /llms.txt + /.well-known/ai-catalog.json)...\n`
+      `\n\x1b[1m\x1b[38;2;129;140;248m[AnswerRail v1.2.13]\x1b[0m Probing \x1b[4m${targetUrl}\x1b[0m (Page + /robots.txt + /llms.txt + /.well-known/ai-catalog.json)...\n`
     );
   }
 
@@ -417,7 +406,7 @@ async function runAudit() {
 
     // Honest 2-Tier Classification
     const requiresEdgeForTruncation = isTruncated || droppedPricesCount > 0;
-    const verdictTier = requiresEdgeForTruncation ? 'TIER_2_EDGE_COMPACTION' : 'TIER_1_FREE_MANIFESTS_ONLY';
+    const verdictTier = requiresEdgeForTruncation ? 'TIER_2_EDGE_COMPACTION' : 'TIER_1_ZERO_DNS_FIX_PACK';
 
     // Non-blocking funnel telemetry ping
     const telemetryPromise = safeFetch(
@@ -512,72 +501,59 @@ async function runAudit() {
     console.log(`\x1b[1m\x1b[37m└──────────────────────────┴────────────────────────────────────────────┘\x1b[0m\n`);
 
     if (shouldWrite) {
-      const written = writeLocalManifests(rawHtml, origin, cleanDomain);
-      console.log(`\x1b[1m\x1b[32m[✓ GENERATED LOCAL MANIFESTS ($0 FREE)]\x1b[0m`);
-      console.log(`  • Wrote \x1b[1m${written.llmsPath}\x1b[0m (llmstxt.org compliant)`);
-      console.log(`  • Wrote \x1b[1m${written.ardPath}\x1b[0m (Google Lighthouse 13.5 ard-schema ARD 1.0)`);
-      console.log(`  • Add to <head>: \x1b[36m<link rel="describedby" href="/llms.txt"> <link rel="ai-catalog" href="/.well-known/ai-catalog.json">\x1b[0m\n`);
+      const preview = buildManifestPreview(rawHtml, origin, cleanDomain);
+      console.log(`\x1b[1m\x1b[36m[6-LINE /llms.txt & ARD 1.0 DIAGNOSTIC PREVIEW FOR ${cleanDomain.toUpperCase()}]\x1b[0m`);
+      console.log(preview.llmsPreview);
+      console.log('\nARD 1.0 (/.well-known/ai-catalog.json & /.well-known/ard.json) Preview:');
+      console.log(preview.ardPreview);
+      console.log(`\n  \x1b[33m→ Unlock all 7 validated files (/llms.txt, /llms-full.txt, ai-catalog.json, ard.json, robots.txt Agentmap, Schema.org @graph & Zero-DNS Worker) for $79:\x1b[0m`);
+      console.log(`    \x1b[4mhttps://answerrail.com/api/checkout/start?plan=fix_pack&channel=cli&domain=${encodeURIComponent(cleanDomain)}\x1b[0m\n`);
     }
 
-    // HONEST 2-TIER DIAGNOSTIC VERDICT
+    // [⚡ 2-TIER REMEDIATION VERDICT]
+    console.log(
+      `\x1b[1m\x1b[36m[⚡ 2-TIER REMEDIATION VERDICT FOR ${cleanDomain.toUpperCase()}]\x1b[0m`
+    );
     if (!requiresEdgeForTruncation) {
       console.log(
-        `\x1b[1m\x1b[32m[✅ HONEST VERDICT: NO PAID EDGE PROXY NEEDED FOR TRUNCATION]\x1b[0m`
+        `• \x1b[32mOrigin Sizing:\x1b[0m HTML fits within the 25,000-token cutoff (${(rawBytes / 1024).toFixed(1)} KB / ~${estimatedTokens.toLocaleString()} tokens), \x1b[33mbut lacks Zero-Click Answer Shield & GA4 "Dark AI" Lead Attribution\x1b[0m.`
       );
       console.log(
-        `Your HTML (${(rawBytes / 1024).toFixed(1)} KB / ~${estimatedTokens.toLocaleString()} tokens) fits comfortably inside the 25,000-token RAG window with 0 dropped prices.`
+        `• \x1b[1m\x1b[33mTier 1 Action Required ($79 Zero-DNS Fix + GA4 Dark-AI Attribution Pack · 100% Auto-Credited to $99/mo Starter):\x1b[0m`
       );
-      if (!hasValidLlmsTxt || !hasValidArd) {
-        console.log(
-          `\x1b[33mWhat you still need:\x1b[0m Static discovery manifests (${!hasValidLlmsTxt ? '/llms.txt' : ''}${!hasValidLlmsTxt && !hasValidArd ? ' + ' : ''}${!hasValidArd ? '/.well-known/ai-catalog.json' : ''}) for Google Lighthouse 13.5.`
-        );
-        if (!shouldWrite) {
-          console.log(
-            `\n\x1b[1mFix for $0 in 5 seconds (writes files directly to your repo):\x1b[0m`
-          );
-          console.log(`  \x1b[32mnpx test-ai-ready ${targetUrl} --write\x1b[0m`);
-        }
-        console.log(
-          `\nOr copy-paste from your live report: \x1b[4mhttps://answerrail.com/report/${cleanDomain}\x1b[0m\n`
-        );
-      } else {
-        console.log(
-          `Both /llms.txt and /.well-known/ai-catalog.json are live. Full report: \x1b[4mhttps://answerrail.com/report/${cleanDomain}\x1b[0m\n`
-        );
-      }
+      console.log(
+        `  1-Click WordPress .zip / Shopify Redirect / 7-File Bundle (/llms.txt, ARD 1.0 ai-catalog.json, Zero-Click Wedge) + 1-Line GA4 Dark-AI Lead Tracker + Live /stats/${cleanDomain} Cockpit:`
+      );
+      console.log(
+        `  \x1b[4mhttps://answerrail.com/api/checkout/start?plan=fix_pack&channel=cli&domain=${encodeURIComponent(cleanDomain)}\x1b[0m`
+      );
+      console.log(
+        `• \x1b[1m\x1b[32mTier 2 Autopilot [Starter $99/mo ($20 Month 1 w/ Credit) | Growth $249/mo | Agency $599/mo]:\x1b[0m \x1b[4mhttps://answerrail.com/api/checkout/start?plan=starter&channel=cli&domain=${encodeURIComponent(cleanDomain)}\x1b[0m`
+      );
     } else {
       console.log(
-        `\x1b[1m\x1b[31m[⚠️  CRITICAL TRUNCATION EVIDENCE ON ${cleanDomain.toUpperCase()}]\x1b[0m`
-      );
-      console.log(
-        `• \x1b[31mPayload Overflow:\x1b[0m ${(rawBytes / 1024).toFixed(1)} KB HTML (~${estimatedTokens.toLocaleString()} tokens) exceeds the 25,000-token cutoff by \x1b[1m${truncationExcess.toLocaleString()} tokens (${truncatedPercent}% dropped)\x1b[0m.`
+        `• \x1b[31mCritical Truncation:\x1b[0m ${(rawBytes / 1024).toFixed(1)} KB HTML (~${estimatedTokens.toLocaleString()} tokens) exceeds 25k cutoff by \x1b[1m${truncationExcess.toLocaleString()} tokens (${truncatedPercent}% dropped)\x1b[0m.`
       );
       if (droppedPricesCount > 0) {
         console.log(
-          `• \x1b[31mPricing Omission:\x1b[0m \x1b[1m${droppedPricesCount} of ${allPrices.length}\x1b[0m pricing/currency tokens sit past byte 100,000 (Sample dropped: ${droppedSample.join(', ')}).`
+          `• \x1b[31mPricing Omission:\x1b[0m \x1b[1m${droppedPricesCount} of ${allPrices.length}\x1b[0m pricing tokens truncated past byte 100,000 (Sample dropped: ${droppedSample.join(', ')}).`
         );
       }
       if (rscBytes > 10240) {
         console.log(
-          `• \x1b[33mRoot Cause:\x1b[0m ${(rscBytes / 1024).toFixed(1)} KB of inline Next.js RSC (\`self.__next_f.push\`) hydration scripts consume the crawler token window before visible content completes.`
+          `• \x1b[33mRoot Cause:\x1b[0m ${(rscBytes / 1024).toFixed(1)} KB of inline Next.js RSC hydration scripts consume the token budget before pricing completes.`
         );
       }
-
-      console.log(`\n\x1b[1m\x1b[36m[WHAT YOU CAN FIX FOR $0 VS WHAT REQUIRES ANSWERRAIL EDGE]\x1b[0m`);
       console.log(
-        `1. \x1b[1m$0 Free Fix (Static Discovery Manifests):\x1b[0m Generate \`/llms.txt\` + \`/.well-known/ai-catalog.json\` locally:`
-      );
-      console.log(`   \x1b[32mnpx test-ai-ready ${targetUrl} --write\x1b[0m`);
-      console.log(
-        `2. \x1b[1mFix 25k-Token HTML Truncation (Requires Edge Compaction):\x1b[0m Static manifest files do not shrink a ${(rawBytes / 1024).toFixed(0)} KB HTML DOM when PerplexityBot or OAI-SearchBot crawls \`${parsed.pathname || '/'}\`.`
+        `• \x1b[1m\x1b[33mTier 1 ($79 Zero-DNS 7-File Fix Pack + 30-Day Live Cockpit · 100% Credited to Starter):\x1b[0m \x1b[4mhttps://answerrail.com/api/checkout/start?plan=fix_pack&channel=cli&domain=${encodeURIComponent(cleanDomain)}\x1b[0m`
       );
       console.log(
-        `   • \x1b[1mInspect Live Before/After Report:\x1b[0m \x1b[4mhttps://answerrail.com/report/${cleanDomain}\x1b[0m`
-      );
-      console.log(
-        `   • \x1b[1mDeploy Layer-7 Edge Proxy ($99/mo Starter):\x1b[0m \x1b[4mhttps://buy.stripe.com/eVq5kCcuj9qFcIc1ee0kE01?client_reference_id=${encodeURIComponent(cleanDomain)}\x1b[0m\n`
+        `• \x1b[1m\x1b[32mTier 2 Recommended [Starter $99/mo ($20 Month 1 w/ Credit) | Growth $249/mo (5 Domains) | Agency $599/mo (15 Domains)]:\x1b[0m \x1b[4mhttps://answerrail.com/api/checkout/start?plan=starter&channel=cli&domain=${encodeURIComponent(cleanDomain)}\x1b[0m`
       );
     }
+    console.log(
+      `• \x1b[1mLive Diagnostic Report:\x1b[0m \x1b[4mhttps://answerrail.com/report/${cleanDomain}\x1b[0m\n`
+    );
 
     await telemetryPromise;
   } catch (err) {
