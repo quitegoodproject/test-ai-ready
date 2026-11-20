@@ -57,7 +57,7 @@ Or connect directly to the zero-install remote Streamable HTTP MCP endpoint: `ht
 ## 4. 2-Tier Production Remediation ($79 One-Time Fix Pack + 30-Day Live Cockpit vs 24/7 Edge Autopilot)
 
 1. **Tier 1 — [Zero-DNS 7-File GEO Fix Pack + 30-Day Live 6-Engine Cockpit ($79 One-Time · $1,950 Value · 14-Day Keep-the-Files Guarantee · 100% Credited to Starter)](https://answerrail.com/api/checkout/start?plan=fix_pack&channel=readme)**: Best for WordPress, Shopify, Webflow, Wix, local businesses, agencies, and sites under 25,000 HTML tokens. Delivers a permanent 7-file bundle + 1-Click WordPress `.zip` plugin (`/llms.txt`, `/llms-full.txt`, `/.well-known/ai-catalog.json`, `/.well-known/ard.json` Zero-Click Buyer Wedge, `Schema.org @graph`, and `ai-attribution.js` GA4 Dark-AI Lead Tag) **plus a 30-Day Live 6-Engine Cockpit & Hosted `/llms` Pass**—with $0 auto-rebill and 100% of your $79 credited if you upgrade to 24/7 Autopilot.
-2. **Tier 2 — [24/7 Automated Anycast Edge Autopilot Plans](https://answerrail.com/#pricing)**: Best for Next.js, React SPA, and heavy SaaS/Shopify storefronts exceeding 25,000 HTML tokens. Compresses 80,000-token DOMs into `<3,000`-token Byte-0 Markdown in `<15ms` across 330+ Cloudflare PoPs with a fail-closed 100% currency/FAQ recall gate and continuous 6-Engine Share-of-Voice attribution.
+2. **Tier 2 — [24/7 Automated Anycast Edge Autopilot Plans](https://answerrail.com/#pricing)**: Best for Next.js, React SPA, and heavy SaaS/Shopify storefronts exceeding 25,000 HTML tokens. Compresses 80,000-token DOMs into `<3,000`-token Byte-0 Markdown in `<15ms` across 330+ Cloudflare PoPs with a fail-closed 100% currency/FAQ recall gate and continuous Layer-7 bot crawl logs + GA4 Dark-AI attribution.
    - **Starter ($99/mo · Just $20 Month 1 w/ $79 Fix Pack Credit · 1 Domain)**: 24/7 Byte-0 Markdown proxy, unlimited live cockpit logs & automatic sync.
    - **Growth ($249/mo · $170 Month 1 w/ Credit · 5 Domains)**: Multi-domain proxy, priority PoP routing, and continuous catalog sync.
    - **Agency ($599/mo · $520 Month 1 w/ Credit · 15 Client Domains)**: Full client white-labeling, dedicated audit dossiers, and custom schema transforms.
@@ -81,6 +81,8 @@ Or connect directly to the zero-install remote Streamable HTTP MCP endpoint: `ht
 ## 6. Empirical Benchmarks & Technical Specifications
 
 - **[2026 50-Site SaaS Pricing & 25k-Token Truncation Benchmark](https://answerrail.com/research/2026-saas-50-truncation-benchmark)**: Why 87% of SaaS sites publish `/llms.txt` yet 74% still truncate `/pricing` HTML past 25,000 tokens.
+- **[Why GA4 Misses 56.6% of AI Traffic (95,843 Crawls Across 115 Live Domains)](https://answerrail.com/geo/track-chatgpt-perplexity-referral-traffic-ga4)**: Layer-7 bot-to-session Dark AI correlation + 14-Engine GA4 Custom Channel Regex.
+- **[White-Label Agency GEO Audits (vs Finseo, AI Peekaboo, LLM Pulse, SE Ranking)](https://answerrail.com/vs/white-label-geo-audit-agency)**: Live `/report/:domain` client dossiers & 15-domain Agency Fleet (`$599/mo`) vs passive prompt trackers.
 - **[How to Pass Google Lighthouse 13.5 `agentic-browsing` (`llms-txt` & `ard-schema`)](https://answerrail.com/geo/lighthouse-agentic-browsing-ai-catalog-json-llms-txt)**
 - **[How to Host `/llms.txt` & `ai-catalog.json` on Shopify, Webflow & WordPress](https://answerrail.com/geo/generate-llms-txt-shopify-wordpress-webflow)**
 
